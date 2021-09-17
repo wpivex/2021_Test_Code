@@ -6,14 +6,12 @@ using namespace vex;
 class Robot {
   public:
     Robot(controller* c);
-    motor leftMotorA;
-    motor leftMotorB;
-    motor leftMotorC;
-    motor rightMotorA;
-    motor rightMotorB;
-    motor rightMotorC;
+    motor_group leftDrive;
+    motor_group rightDrive;
 
     controller* robotController;
+
+    Robot(motor_group, motor_group, controller*);
 
     void driveStraight(float percent, float dist);
     void driveStraight(float percent, float dist, float accPercent);
