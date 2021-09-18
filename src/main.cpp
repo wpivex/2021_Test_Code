@@ -17,7 +17,10 @@ void userControl(void) {
 }
 
 void mainAuto(void) {
-  mainBotP->driveStraight(0.5, 30, 0);
+  for(int i=0; i<4; i++) {
+    mainBotP->driveStraight(30, 24 + 14.5);
+    mainBotP->turnToAngle(30, 90);
+  }
 }
 
 int tetherAuto(void) {
@@ -25,13 +28,13 @@ int tetherAuto(void) {
 }
 
 void autonomous() {
-  thread auto1();
+  thread auto1(mainAuto);
 }
 
 int main() {
   Robot mainBot = Robot(&Controller1);
   mainBotP = &mainBot;
-  Competition.autonomous(mainAuto);
+  Competition.autonomous(autonomous);
   Competition.drivercontrol(userControl);
 
   // Prevent main from exiting with an infinite loop.

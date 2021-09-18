@@ -43,8 +43,30 @@ void Robot::teleop() {
   }
 }
 
-void Robot::driveStraight(float percent, float dist, float accPercent) {
+float distanceToDegrees(float dist) {
+  return dist * 360 / 60 * 36 / 2 / M_PI / (3.25 / 2);
+}
 
+void Robot::driveStraight(float percent, float dist) {
+  leftMotorA.resetPosition();
+  rightMotorA.resetPosition();
+  // currPos is the current average encoder position, travelDist is the total encoder distance to be traversed, 
+  // targetDist is the target encoder position, and currLeft/Right are the current left and right encoder positions
+  float currLeft = leftMotorA.position(degrees);
+  float currRight = rightMotorA.position(degrees);
+  float currPos = (currLeft + currRight) / 2;
+  float travelDist = distanceToDegrees(dist);
+  float targetDist = currPos + travelDist;
+  
+  while (currPos < targetDist) {
+    setLeftVelocity(dist > 0 ? forward : reverse, 5 + (percent - 5) * ((targetDist - currPos) / travelDist));
+    setRightVelocity(dist > 0 ? forward : reverse, 5 + (percent - 5) * ((targetDist - currPos) / travelDist) - ((currRight - currLeft) / travelDist * 10));
+    currLeft = leftMotorA.position(degrees);
+    currRight = rightMotorA.position(degrees);
+    currPos = (currLeft + currRight) / 2;
+  }
+  stopLeft();
+  stopRight();
 }
 
 void Robot::driveTimed(float percent, float driveTime) {
@@ -57,12 +79,23 @@ void Robot::driveTimed(float percent, float driveTime) {
   stopRight();
 }
 
-void Robot::driveStraight(float percent, float dist) {
-  driveStraight(percent, dist, 0.1); //acc is from 0 to 1
-}
-
+//12.375 in wheelbase
 void Robot::turnToAngle(float percent, float turnAngle) {
-
+  leftMotorA.resetPosition();
+  rightMotorA.resetPosition();
+  // currPos is the current average encoder position, travelDist is the total encoder distance to be traversed, 
+  // and targetDist is the target encoder position
+  float currPos = (fabs(leftMotorA.position(degrees)) + fabs(rightMotorA.position(degrees))) / 2;
+  float travelDist = distanceToDegrees(turnAngle / 360 * 2 * M_PI * (12.375 / 2));
+  float targetDist = currPos + travelDist;
+  
+  while (currPos < targetDist) {
+    setLeftVelocity(turnAngle > 0 ? forward : reverse, 5 + (percent - 5) * ((targetDist - currPos) / travelDist));
+    setRightVelocity(turnAngle > 0 ? reverse : forward, 5 + (percent - 5) * ((targetDist - currPos) / travelDist));
+    currPos = (fabs(leftMotorA.position(degrees)) + fabs(rightMotorA.position(degrees))) / 2;
+  }
+  stopLeft();
+  stopRight();
 }
 
 void Robot::setLeftVelocity(directionType d, double percent) {
