@@ -1,25 +1,29 @@
 #include "robot.h"
 #include <math.h>
 
-// Motor ports Left: 12T, 14F,  20T Right: 2F, 6T, 10F
+// Motor ports Left: 1R, 2F, 3F,  20T Right: 12R, 11F, 13F
 // gear ratio is 60/36
 Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), /*leftMotorD(0), leftMotorE(0),*/ rightMotorA(0), rightMotorB(0), 
   rightMotorC(0), /*rightMotorD(0), rightMotorE(0),*/ fourBarLeft(0), fourBarRight(0), chainBarLeft(0), chainBarRight(0), claw(0) {
-  leftMotorA = motor(PORT12, ratio18_1, true);
-  leftMotorB = motor(PORT14, ratio18_1, false);
-  leftMotorC = motor(PORT20, ratio18_1, true);
+  leftMotorA = motor(1, ratio18_1, true);
+  leftMotorB = motor(2, ratio18_1, false);
+  leftMotorC = motor(3, ratio18_1, false);
   // leftMotorD = motor(0, ratio18_1, true);
   // leftMotorE = motor(0, ratio18_1, true);
-  rightMotorA = motor(PORT2, ratio18_1, false);
-  rightMotorB = motor(PORT6, ratio18_1, true);
-  rightMotorC = motor(PORT10, ratio18_1, false);
+  leftDrive = motor_group(leftMotorA, leftMotorB, leftMotorC/*, leftMotorD, leftMotorE*/);
+
+  rightMotorA = motor(12, ratio18_1, false);
+  rightMotorB = motor(11, ratio18_1, true);
+  rightMotorC = motor(13, ratio18_1, true);
   // rightMotorD = motor(0, ratio18_1, true);
   // rightMotorE = motor(0, ratio18_1, false);
-  fourBarLeft = motor(0, ratio18_1, true);
-  fourBarRight = motor(0, ratio18_1, true);
-  chainBarLeft = motor(0, ratio18_1, true);
-  chainBarRight = motor(0, ratio18_1, true);
-  claw = motor(0, ratio18_1, true);
+  rightDrive = motor_group(rightMotorA, rightMotorB, rightMotorC/*, rightMotorD, rightMotorE*/);
+
+  fourBarLeft = motor(10, ratio18_1, true);
+  fourBarRight = motor(20, ratio18_1, false);
+  chainBarLeft = motor(9, ratio18_1, true);
+  chainBarRight = motor(19, ratio18_1, false);
+  claw = motor(16, ratio18_1, true);
   driveType = ARCADE;
   robotController = c; 
 }
@@ -34,14 +38,14 @@ void Robot::teleop() {
     float percent = (driveType == ARCADE) ? (pow((robotController->Axis3.position()/100.00f), 3.00f) + pow((robotController->Axis1.position()/100.00f), 5.00f))*100.00f : leftJoystick;
     setLeftVelocity(forward, percent);
   } else {
-    stopLeft();
+    leftDrive.stop();;
   }
 
   if (fabs(rightJoystick) > 5) {
     float percent = (driveType == ARCADE) ? (pow((robotController->Axis3.position()/100.00f), 3.00f) - pow((robotController->Axis1.position()/100.00f), 5.00f))*100.00f : rightJoystick;
     setRightVelocity(forward, percent);
   } else {
-    stopRight();
+    rightDrive.stop();;
   }
 }
 
@@ -67,8 +71,8 @@ void Robot::driveStraight(float percent, float dist) {
     currRight = rightMotorA.position(degrees);
     currPos = (currLeft + currRight) / 2;
   }
-  stopLeft();
-  stopRight();
+  leftDrive.stop();;
+  rightDrive.stop();;
 }
 
 void Robot::driveTimed(float percent, float driveTime) {
@@ -77,8 +81,8 @@ void Robot::driveTimed(float percent, float driveTime) {
     setLeftVelocity(forward, percent);
     setRightVelocity(forward, percent);
   }
-  stopLeft();
-  stopRight();
+  leftDrive.stop();;
+  rightDrive.stop();;
 }
 
 //12.375 in wheelbase
@@ -96,8 +100,8 @@ void Robot::turnToAngle(float percent, float turnAngle) {
     setRightVelocity(turnAngle > 0 ? reverse : forward, 5 + (percent - 5) * ((targetDist - currPos) / travelDist));
     currPos = (fabs(leftMotorA.position(degrees)) + fabs(rightMotorA.position(degrees))) / 2;
   }
-  stopLeft();
-  stopRight();
+  leftDrive.stop();;
+  rightDrive.stop();;
 }
 
 void Robot::openClaw() {}
@@ -106,33 +110,9 @@ void Robot::liftFourBar(float percentHeight) {}
 void Robot::lowerFourBar(float percentHeight) {}
 
 void Robot::setLeftVelocity(directionType d, double percent) {
-  leftMotorA.spin(d, percent, percentUnits::pct);
-  leftMotorB.spin(d, percent, percentUnits::pct);
-  leftMotorC.spin(d, percent, percentUnits::pct);
-  // leftMotorD.spin(d, percent, percentUnits::pct);
-  // leftMotorE.spin(d, percent, percentUnits::pct);
+  leftDrive.spin(d, percent, percentUnits::pct);
 }
 
 void Robot::setRightVelocity(directionType d, double percent) {
-  rightMotorA.spin(d, percent, percentUnits::pct);
-  rightMotorB.spin(d, percent, percentUnits::pct);
-  rightMotorC.spin(d, percent, percentUnits::pct);
-  // rightMotorD.spin(d, percent, percentUnits::pct);
-  // rightMotorE.spin(d, percent, percentUnits::pct);
-}
-
-void Robot::stopLeft() {
-  leftMotorA.stop();
-  leftMotorB.stop();
-  leftMotorC.stop();
-  // leftMotorD.stop();
-  // leftMotorE.stop();
-}
-
-void Robot::stopRight() {
-  rightMotorA.stop();
-  rightMotorB.stop();
-  rightMotorC.stop();
-  // rightMotorD.stop();
-  // rightMotorE.stop();
+  rightDrive.spin(d, percent, percentUnits::pct);
 }
