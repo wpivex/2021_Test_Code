@@ -26,6 +26,8 @@ Robot::Robot(controller* c) : leftMotorA(0), leftMotorB(0), leftMotorC(0), /*lef
   claw = motor(16, ratio18_1, true);
   driveType = ARCADE;
   robotController = c; 
+
+  
 }
 
 void Robot::teleop() {
