@@ -5,13 +5,23 @@ using namespace vex;
 
 class Robot {
   public:
+    // four drivebase motors will not be accessible for a while
     Robot(controller* c);
     motor leftMotorA;
     motor leftMotorB;
     motor leftMotorC;
+    // motor leftMotorD;
+    // motor leftMotorE;
     motor rightMotorA;
     motor rightMotorB;
     motor rightMotorC;
+    // motor rightMotorD;
+    // motor rightMotorE;
+    motor fourBarLeft;
+    motor fourBarRight;
+    motor chainBarLeft;
+    motor chainBarRight;
+    motor claw;
 
     controller* robotController;
 
@@ -19,6 +29,7 @@ class Robot {
     void driveStraight(float percent, float dist, float accPercent);
     void driveTimed(float percent, float driveTime);
     void turnToAngle(float percent, float turnAngle);
+
     void userControl( void );
     void teleop( void );
     void init();
