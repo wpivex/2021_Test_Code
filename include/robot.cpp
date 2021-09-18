@@ -100,6 +100,11 @@ void Robot::turnToAngle(float percent, float turnAngle) {
   stopRight();
 }
 
+void Robot::openClaw() {}
+void Robot::closeClaw() {}
+void Robot::liftFourBar(float percentHeight) {}
+void Robot::lowerFourBar(float percentHeight) {}
+
 void Robot::setLeftVelocity(directionType d, double percent) {
   leftMotorA.spin(d, percent, percentUnits::pct);
   leftMotorB.spin(d, percent, percentUnits::pct);

@@ -29,6 +29,10 @@ class Robot {
     void driveStraight(float percent, float dist, float accPercent);
     void driveTimed(float percent, float driveTime);
     void turnToAngle(float percent, float turnAngle);
+    void openClaw();
+    void closeClaw();
+    void liftFourBar(float percentHeight);
+    void lowerFourBar(float percentHeight);
 
     void userControl( void );
     void teleop( void );
